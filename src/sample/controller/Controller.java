@@ -1,16 +1,17 @@
 package sample.controller;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
-import javafx.scene.control.SplitPane;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.TransferMode;
-import javafx.stage.FileChooser;
+import sample.model.MainImage;
+import sample.model.WatermarkImage;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
-
+import java.io.IOException;
 
 public class Controller {
     @FXML
@@ -18,35 +19,34 @@ public class Controller {
     @FXML
     private ImageView showWaterMark;
 
-    //Set extension filter for images
-    FileChooser.ExtensionFilter imageFilter
-            = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png");
-
     @FXML
-    private void uploadImage(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-
-        File imageFile = fileChooser.showOpenDialog(null);
-        if (imageFile != null) {
-            Image mainImage = new Image(imageFile.toURI().toString());
-            showMainImage.setImage(mainImage);
-        }
+    private void imageProcess(ActionEvent event) {
+        MainImage mainImage = new MainImage();
+        mainImage.setMainImageView(showMainImage);
+        showMainImage.setImage(mainImage.uploadImage());
     }
 
     @FXML
-    private void uploadWatermark(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-
-        File imageFile = fileChooser.showOpenDialog(null);
-        if (imageFile != null) {
-            Image waterMark = new Image(imageFile.toURI().toString());
-            showWaterMark.setImage(waterMark);
-        }
-
+    private void watermarkProcess(ActionEvent event) {
+        WatermarkImage watermarkImage = new WatermarkImage();
+        showWaterMark.setImage(watermarkImage.uploadImage());
     }
 
     @FXML
     private void saveButton(ActionEvent event) {
-        System.out.println("Megnyomtad a mentés gombot");
+        Group merge = new Group(
+                showMainImage,
+                showWaterMark
+        );
+
+        File outputFile = new File("C:/Users/f/Desktop/Adam/formattedPicture.png");
+        BufferedImage bImage = SwingFXUtils.fromFXImage(merge.snapshot(null, null), null);
+        try {
+            ImageIO.write(bImage, "png", outputFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 }
